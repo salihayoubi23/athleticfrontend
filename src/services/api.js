@@ -1,13 +1,14 @@
 import axios from 'axios';
 import { ObjectId } from 'bson'; // Importation d'ObjectId pour valider
 import moment from 'moment';
+
 // Définir les bases d'URL pour chaque type d'API
-const NGROK_URL = 'https://4428-2a01-e0a-5e8-4570-b4be-a92f-f808-4f33.ngrok-free.app';
+const BACKEND_URL = 'https://athletic-backend.onrender.com';
 
-const PRESTATIONS_API_URL = `${NGROK_URL}/api/prestations`;
-const RESERVATIONS_API_URL = `${NGROK_URL}/api/reservations`;
+const PRESTATIONS_API_URL = `${BACKEND_URL}/api/prestations`;
+const RESERVATIONS_API_URL = `${BACKEND_URL}/api/reservations`;
+const AUTH_API_URL = process.env.REACT_APP_API_URL || `${BACKEND_URL}/api/auth`;
 
-const AUTH_API_URL = process.env.REACT_APP_API_URL || 'https://4428-2a01-e0a-5e8-4570-b4be-a92f-f808-4f33.ngrok-free.app/api/auth';
 
 // Fonction pour vérifier si l'ID est un ObjectId valide
 const isValidObjectId = (id) => {
