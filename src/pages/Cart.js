@@ -19,8 +19,6 @@ const Cart = () => {
                 return;
             }
     
-           
-    
             // Préparer les données des prestations
             const reservationData = {
                 prestations: cartItems.map(item => ({
@@ -29,30 +27,30 @@ const Cart = () => {
                     price: item.price,
                     date: moment(item.date).toISOString()
                 })),
-                
             };
     
-            // Appeler l'API pour créer la réservation
+            // Créer la réservation
             const reservationResponse = await createReservation(reservationData);
             console.log('Réservation créée:', reservationResponse);
     
-            // Appeler l'API de paiement Stripe
+            // Créer la session de paiement Stripe
             const paymentResponse = await payForReservation(reservationResponse.reservationId);
             console.log('Réponse de paiement:', paymentResponse);
     
-            // Rediriger vers l'URL Stripe
+            // Vérifier si l'URL Stripe est présente et rediriger
             if (paymentResponse.url) {
-                window.location.href = paymentResponse.url;  // Redirection vers Stripe
+                window.location.href = paymentResponse.url;
             } else {
                 console.error('Erreur: URL de paiement manquante.');
             }
     
-            clearCart(); // Vider le panier après le succès
+            clearCart(); // Vider le panier après la réussite du paiement
         } catch (error) {
             console.error('Erreur lors du paiement:', error.response?.data || error.message);
             alert('Erreur lors du traitement du paiement : ' + error.message);
         }
     };
+    
     
     
 
