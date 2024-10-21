@@ -207,55 +207,26 @@ export const payForReservation = async (reservationId) => {
 
 
 // Fonction pour créer une réservation
-// Fonction pour créer une réservation
-export const createReservation = async (prestations) => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-        throw new Error('Token manquant.');
-    }
+export const createReservation = async (reservationData) => {
+    const token = localStorage.getItem('token');  // Récupère le token depuis le localStorage
+
+    console.log('Données de réservation envoyées :', reservationData);
 
     try {
-        const response = await axios.post(`${RESERVATIONS_API_URL}/`, { prestations }, {
+        const response = await axios.post(`${RESERVATIONS_API_URL}`, reservationData, {
             headers: {
-                Authorization: `Bearer ${token}`
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`  // Envoie le token pour authentification
             }
         });
 
-        const reservationId = response.data.reservationId; // Récupérer l'ID de la réservation créée
-        console.log('Réservation créée avec succès. ID:', reservationId);
-
-        // Récupérer la réservation par ID
-        const reservation = await fetchReservationById(reservationId);
-        console.log('Réservation récupérée:', reservation);
-
-        return reservation; // Retourner la réservation si nécessaire
+        console.log('Réservation créée avec succès:', response.data);
+        return response.data;
     } catch (error) {
-        console.error('Erreur lors de la création de la réservation:', error.message);
-        throw error; // Relancer l'erreur
+        console.error('Erreur lors de la création de la réservation:', error.response?.data || error.message);
+        throw error;
     }
 };
-
-// Fonction pour récupérer une réservation par ID
-export const fetchReservationById = async (id) => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-        throw new Error('Token manquant.');
-    }
-
-    try {
-        const response = await axios.get(`${RESERVATIONS_API_URL}/${id}`, {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        });
-        
-        return response.data; // Retourner les données de la réservation
-    } catch (error) {
-        console.error('Erreur lors de la récupération de la réservation:', error.message);
-        throw error; // Relancer l'erreur
-    }
-};
-
 
 
 
