@@ -105,7 +105,7 @@ export const fetchUserPaidReservations = async () => {
     }
 
     try {
-        const response = await axios.get(`${RESERVATIONS_API_URL}/user/paid`, {
+        const response = await axios.get(`${RESERVATIONS_API_URL}/reservations-paid`, {
             headers: {
                 Authorization: `Bearer ${token}` // Ajouter le token à l'en-tête
             }
