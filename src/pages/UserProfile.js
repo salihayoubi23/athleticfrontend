@@ -49,6 +49,8 @@ const UserProfile = () => {
                 setUsername(profileData.username);
         
                 const reservationsData = await fetchUserPaidReservations();
+                console.log('Données de réservations récupérées:', reservationsData); // Log des données récupérées
+
                 setReservations(reservationsData);
         
             } catch (error) {
