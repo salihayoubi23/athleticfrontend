@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Container, Row, Col, Form, ListGroup } from 'react-bootstrap';
+import { Button, Container, Row, Col, Form, Table } from 'react-bootstrap';
 import moment from 'moment';
 import 'moment/locale/fr';
 import { fetchUserPaidReservations, fetchUserProfile } from '../services/api';
@@ -122,16 +122,35 @@ const UserProfile = () => {
 
                     <h2 className="text-center text-warning mb-4">Mes réservations payées</h2>
                     {Array.isArray(reservations) && reservations.length > 0 ? (
-    <ListGroup className="mb-4">
-        {reservations.map((reservation) => (
-            <ListGroup.Item key={reservation._id} className="bg-dark text-white mb-2">
-                {reservation.prestation ? reservation.prestation.name : 'Prestation non définie'} - {moment(reservation.date).format('dddd, LL')}
-            </ListGroup.Item>
-        ))}
-    </ListGroup>
-) : (
-    <p className="text-center text-white">Vous n'avez aucune réservation payée.</p>
-)}
+                        <Table striped bordered hover variant="dark" className="mb-4">
+                            <thead>
+                                <tr>
+                                    <th>ID Réservation</th>
+                                    <th>Prestations</th>
+                                    <th>Date de création</th>
+                                    <th>Statut</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {reservations.map((reservation) => (
+                                    <tr key={reservation._id}>
+                                        <td>{reservation._id}</td>
+                                        <td>
+                                            {reservation.prestations.map((prestation, index) => (
+                                                <div key={index}>
+                                                    <strong>{prestation.name}</strong> - {prestation.price}€
+                                                </div>
+                                            ))}
+                                        </td>
+                                        <td>{moment(reservation.date).format('dddd, LL')}</td>
+                                        <td>{reservation.status}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </Table>
+                    ) : (
+                        <p className="text-center text-white">Vous n'avez aucune réservation payée.</p>
+                    )}
 
                     <h2 className="text-center text-white mb-4">Sélectionner plusieurs jours de la semaine</h2>
                     <Form className="my-3 text-white">
