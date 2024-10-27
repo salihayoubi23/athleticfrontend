@@ -51,7 +51,7 @@ const UserProfile = () => {
                 const reservationsData = await fetchUserPaidReservations();
                 console.log('Données de réservations récupérées:', reservationsData); // Log des données récupérées
 
-                setReservations(reservationsData);
+                setReservations(reservationsData.data);
         
             } catch (error) {
                 setError('Erreur lors de la récupération des données.');
