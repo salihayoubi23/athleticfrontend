@@ -99,7 +99,7 @@ export const fetchUserProfile = async () => {
 
 
 export const fetchUserPaidReservations = async () => {
-    const token = localStorage.getItem('token'); // Récupérer le token du stockage local
+    const token = localStorage.getItem('token');
     if (!token) {
         throw new Error('Token manquant.');
     }
@@ -107,18 +107,18 @@ export const fetchUserPaidReservations = async () => {
     try {
         const response = await axios.get(`${RESERVATIONS_API_URL}/user/paid`, {
             headers: {
-                Authorization: `Bearer ${token}` // Ajouter le token à l'en-tête
+                Authorization: `Bearer ${token}`
             }
         });
-        
-        console.log('Réponse de l\'API pour les réservations payées:', response.data); // Log des données reçues
 
-        return response.data.data || response.data; 
+        console.log('Réponse de l\'API pour les réservations payées:', response.data);
+        return response.data; // Simplifié
     } catch (error) {
         console.error('Erreur lors de la récupération des réservations payées:', error.response?.data || error.message);
-        throw error; // Relancer l'erreur pour la gestion plus haut
+        throw error;
     }
 };
+
 
 
 // Récupérer toutes les prestations
