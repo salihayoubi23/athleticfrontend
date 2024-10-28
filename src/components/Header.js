@@ -2,8 +2,7 @@ import React from 'react';
 import { Navbar, Nav, Container } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { useCart } from '../components/CartContext'; // Importez le contexte du panier
-
+import { useCart } from '../components/CartContext'; 
 const Header = () => {
     const { cartItems } = useCart(); // Utilisez le contexte du panier pour obtenir les articles
     const navigate = useNavigate();
