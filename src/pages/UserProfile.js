@@ -7,9 +7,9 @@ import { useCart } from '../components/CartContext';
 import ObjectId from 'bson-objectid';
 
 const prestationsData = {
-    'prestation-du-mercredi': { _id: "66f87fdf253a3e181921acf1", name: "Prestation Du Mercredi", price: 3 },
-    'prestation-du-dimanche': { _id: "66f87fdf253a3e181921acf2", name: "Prestation Du Dimanche", price: 3 },
-    'prestation-du-lundi': { _id: "66f87fdf253a3e181921acf0", name: "Prestation Du Lundi", price: 3 }
+    'prestation-du-mercredi': { _id: "66f87fdf253a3e181921acf1", name: "Prestation Du Mercredi", price: 150 },
+    'prestation-du-dimanche': { _id: "66f87fdf253a3e181921acf2", name: "Prestation Du Dimanche", price: 200 },
+    'prestation-du-lundi': { _id: "66f87fdf253a3e181921acf0", name: "Prestation Du Lundi", price: 100 }
 };
 
 const UserProfile = () => {
