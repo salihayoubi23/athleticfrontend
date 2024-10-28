@@ -112,25 +112,6 @@ const UserProfile = () => {
         });
     };
 
-  // Fonction pour surligner les dates avec prestations
-    const getTileClassName = ({ date, view }) => {
-        if (view === 'month') {
-            const reservationDates = reservations.map(reservation => moment(reservation.date).format('YYYY-MM-DD'));
-            if (reservationDates.includes(moment(date).format('YYYY-MM-DD'))) {
-                return 'highlight';
-            }
-        }
-        return null;
-    };
-
-    // Obtenir les prestations pour une date donnée
-    const getPrestationsForDate = (date) => {
-        const selectedDateStr = moment(date).format('YYYY-MM-DD');
-        return reservations.filter(reservation => 
-            moment(reservation.date).format('YYYY-MM-DD') === selectedDateStr
-        );
-    };
-
     return (
         <Container className="my-5 p-4" style={{ backgroundColor: '#111', borderRadius: '8px' }}>
             <Row className="justify-content-center">
@@ -141,26 +122,29 @@ const UserProfile = () => {
                         <h2 className="text-center text-warning mb-4">Bienvenue, {username}</h2>
                     )}
 
-                    <h2 className="text-center text-warning mb-4">Calendrier des prestations</h2>
-                    <Calendar
-                        onChange={setSelectedDate}
-                        value={selectedDate}
-                        tileClassName={getTileClassName} // Surligne les dates avec prestations
-                    />
-
-                    {selectedDate && (
-                        <div className="mt-4">
-                            <h3 className="text-warning">
-                                Prestations pour le {moment(selectedDate).format('dddd, LL')}
-                            </h3>
-                            <ListGroup variant="flush">
-                                {getPrestationsForDate(selectedDate).map((reservation, index) => (
-                                    <ListGroup.Item key={index} className="bg-secondary text-white mb-2">
-                                        <strong>{reservation.prestation.name}</strong> - {reservation.prestation.price}€
-                                    </ListGroup.Item>
-                                ))}
-                            </ListGroup>
-                        </div>
+                    <h2 className="text-center text-warning mb-4">Mes réservations payées</h2>
+                    {Array.isArray(reservations) && reservations.length > 0 ? (
+                        <ListGroup className="mb-4">
+                            {reservations.map((reservation) => (
+                                <ListGroup.Item key={reservation.reservationId} className="bg-dark text-white mb-2">
+                                    <h5 className="text-warning">
+                                        {moment(reservation.createdAt).format('dddd, LL')} :
+                                    </h5>
+                                    <ListGroup variant="flush">
+                                        {reservation.prestations.map((prestation, index) => (
+                                            <ListGroup.Item key={index} className="bg-secondary text-white">
+                                                <strong>{prestation.name}</strong> - {prestation.price}€<br />
+                                                <small>
+                                                    {moment(prestation.date).format('dddd, LL')}
+                                                </small>
+                                            </ListGroup.Item>
+                                        ))}
+                                    </ListGroup>
+                                </ListGroup.Item>
+                            ))}
+                        </ListGroup>
+                    ) : (
+                        <p className="text-center text-white">Vous n'avez aucune réservation payée.</p>
                     )}
                 </Col>
             </Row>
