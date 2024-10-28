@@ -1,12 +1,10 @@
-import React, { useState, useEffect } from 'react'; 
+import React, { useState, useEffect } from 'react';
 import { Button, Container, Row, Col, Form, Table, ListGroup } from 'react-bootstrap';
 import moment from 'moment';
 import 'moment/locale/fr';
 import { fetchUserPaidReservations, fetchUserProfile } from '../services/api';
 import { useCart } from '../components/CartContext';
 import ObjectId from 'bson-objectid';
-import Calendar from 'react-calendar';
-import 'react-calendar/dist/Calendar.css';
 
 const prestationsData = {
     'prestation-du-mercredi': {
@@ -33,7 +31,7 @@ const UserProfile = () => {
     const [reservations, setReservations] = useState([]);
     const [username, setUsername] = useState(''); 
     const [error, setError] = useState(null); 
-    const [selectedDate, setSelectedDate] = useState(null);
+    const PRICE = 3;
 
     moment.locale('fr');
 
@@ -51,7 +49,8 @@ const UserProfile = () => {
                 setUsername(profileData.username);
         
                 const reservationsData = await fetchUserPaidReservations();
-                console.log('Données de réservations récupérées:', reservationsData);
+                console.log('Données de réservations récupérées:', reservationsData); // Log des données récupérées
+
                 setReservations(reservationsData.data);
         
             } catch (error) {
@@ -62,33 +61,58 @@ const UserProfile = () => {
         fetchData(); 
     }, []);
 
+    useEffect(() => {
+        if (selectedDays.length > 0) {
+            generateAvailableDates();
+        } else {
+            setAvailableDates([]);
+        }
+    }, [selectedDays]);
+
     const handleDaySelection = (day) => {
         setSelectedDays(prevDays => 
             prevDays.includes(day) ? prevDays.filter(d => d !== day) : [...prevDays, day]
         );
     };
 
+    const generateAvailableDates = () => {
+        const dates = [];
+        const startDate = moment();
+        const endDate = moment().add(1, 'months');
+
+        while (startDate.isBefore(endDate)) {
+            if (selectedDays.includes(startDate.format('dddd').toLowerCase())) {
+                dates.push(startDate.clone());
+            }
+            startDate.add(1, 'days');
+        }
+
+        setAvailableDates(dates);
+    };
+
     const handleAddToCart = (date, prestationSlug) => {
-        const prestation = prestationsData[prestationSlug];
+        const prestation = prestationsData[prestationSlug];  // Récupérer la prestation par son slug
+    
         if (!prestation || !date) {
             alert('Erreur: Prestation ou date non définie.');
             return;
         }
     
-        const formattedDate = moment(date).toISOString();
-        const reservationId = new ObjectId().toString();
+        const formattedDate = moment(date).toISOString();  // Formater la date au format ISO
+        const reservationId = new ObjectId().toString();   // Générer un ID unique pour la réservation
     
+        // Ajouter l'article au panier avec la date spécifique
         addToCart({
             reservationId: reservationId,
-            date: formattedDate,
-            day: moment(date).format('dddd'),
-            prestation: prestation.name,
-            price: prestation.price,
-            prestationId: prestation._id
+            date: formattedDate,  // Inclure la date ici
+            day: moment(date).format('dddd'),  // Jour au format texte
+            prestation: prestation.name,       // Nom de la prestation
+            price: prestation.price,           // Prix de la prestation
+            prestationId: prestation._id       // ID de la prestation
         });
     };
 
-    // Surlignage des dates avec prestations
+  // Fonction pour surligner les dates avec prestations
     const getTileClassName = ({ date, view }) => {
         if (view === 'month') {
             const reservationDates = reservations.map(reservation => moment(reservation.date).format('YYYY-MM-DD'));
@@ -99,7 +123,7 @@ const UserProfile = () => {
         return null;
     };
 
-    // Prestations pour une date sélectionnée
+    // Obtenir les prestations pour une date donnée
     const getPrestationsForDate = (date) => {
         const selectedDateStr = moment(date).format('YYYY-MM-DD');
         return reservations.filter(reservation => 
@@ -121,7 +145,7 @@ const UserProfile = () => {
                     <Calendar
                         onChange={setSelectedDate}
                         value={selectedDate}
-                        tileClassName={getTileClassName} // Surlignage des dates avec prestations
+                        tileClassName={getTileClassName} // Surligne les dates avec prestations
                     />
 
                     {selectedDate && (
