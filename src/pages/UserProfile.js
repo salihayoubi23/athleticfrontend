@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Container, Row, Col, Form, Table } from 'react-bootstrap';
+import { Button, Container, Row, Col, Form, Table, ListGroup } from 'react-bootstrap';
 import moment from 'moment';
 import 'moment/locale/fr';
 import { fetchUserPaidReservations, fetchUserProfile } from '../services/api';
@@ -7,21 +7,9 @@ import { useCart } from '../components/CartContext';
 import ObjectId from 'bson-objectid';
 
 const prestationsData = {
-    'prestation-du-mercredi': {
-        _id: "66f87fdf253a3e181921acf1",
-        name: "Prestation Du Mercredi",
-        price: 150,
-    },
-    'prestation-du-dimanche': {
-        _id: "66f87fdf253a3e181921acf2",
-        name: "Prestation Du Dimanche",
-        price: 200,
-    },
-    'prestation-du-lundi': {
-        _id: "66f87fdf253a3e181921acf0",
-        name: "Prestation Du Lundi",
-        price: 100,
-    }
+    'prestation-du-mercredi': { _id: "66f87fdf253a3e181921acf1", name: "Prestation Du Mercredi", price: 3 },
+    'prestation-du-dimanche': { _id: "66f87fdf253a3e181921acf2", name: "Prestation Du Dimanche", price: 3 },
+    'prestation-du-lundi': { _id: "66f87fdf253a3e181921acf0", name: "Prestation Du Lundi", price: 3 }
 };
 
 const UserProfile = () => {
@@ -47,16 +35,13 @@ const UserProfile = () => {
             try {
                 const profileData = await fetchUserProfile();
                 setUsername(profileData.username);
-        
                 const reservationsData = await fetchUserPaidReservations();
-                setReservations(reservationsData);
-        
+                setReservations(reservationsData.data);
             } catch (error) {
                 setError('Erreur lors de la récupération des données.');
             }
         };
-        
-        fetchData(); 
+        fetchData();
     }, []);
 
     useEffect(() => {
@@ -84,29 +69,24 @@ const UserProfile = () => {
             }
             startDate.add(1, 'days');
         }
-
         setAvailableDates(dates);
     };
 
     const handleAddToCart = (date, prestationSlug) => {
-        const prestation = prestationsData[prestationSlug];  // Récupérer la prestation par son slug
-    
+        const prestation = prestationsData[prestationSlug];
         if (!prestation || !date) {
             alert('Erreur: Prestation ou date non définie.');
             return;
         }
-    
-        const formattedDate = moment(date).toISOString();  // Formater la date au format ISO
-        const reservationId = new ObjectId().toString();   // Générer un ID unique pour la réservation
-    
-        // Ajouter l'article au panier avec la date spécifique
+        const formattedDate = moment(date).toISOString();
+        const reservationId = new ObjectId().toString();
         addToCart({
             reservationId: reservationId,
-            date: formattedDate,  // Inclure la date ici
-            day: moment(date).format('dddd'),  // Jour au format texte
-            prestation: prestation.name,       // Nom de la prestation
-            price: prestation.price,           // Prix de la prestation
-            prestationId: prestation._id       // ID de la prestation
+            date: formattedDate,
+            day: moment(date).format('dddd'),
+            prestation: prestation.name,
+            price: prestation.price,
+            prestationId: prestation._id
         });
     };
 
@@ -119,39 +99,27 @@ const UserProfile = () => {
                     ) : (
                         <h2 className="text-center text-warning mb-4">Bienvenue, {username}</h2>
                     )}
-
+                    
                     <h2 className="text-center text-warning mb-4">Mes réservations payées</h2>
                     {Array.isArray(reservations) && reservations.length > 0 ? (
-                        <Table striped bordered hover variant="dark" className="mb-4">
-                            <thead>
-                                <tr>
-                                    <th>ID Réservation</th>
-                                    <th>Prestations</th>
-                                    <th>Date de création</th>
-                                    <th>Statut</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {reservations.map((reservation) => (
-                                    <tr key={reservation._id}>
-                                        <td>{reservation._id}</td>
-                                        <td>
-                                            {reservation.prestations.map((prestation, index) => (
-                                                <div key={index}>
-                                                    <strong>{prestation.name}</strong> - {prestation.price}€
-                                                </div>
-                                            ))}
-                                        </td>
-                                        <td>{moment(reservation.date).format('dddd, LL')}</td>
-                                        <td>{reservation.status}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </Table>
+                        <ListGroup variant="flush">
+                            {reservations.map((reservation) => (
+                                <ListGroup.Item key={reservation._id} className="bg-dark text-white my-2 p-3 rounded">
+                                    <h5 className="text-warning">
+                                        {moment(reservation.date).format('dddd, LL')} :
+                                    </h5>
+                                    {reservation.prestations.map((prestation, index) => (
+                                        <div key={index} className="ml-3">
+                                            <strong>{prestation.name}</strong> - {prestation.price}€ - {moment(prestation.date).format('LL')}
+                                        </div>
+                                    ))}
+                                </ListGroup.Item>
+                            ))}
+                        </ListGroup>
                     ) : (
                         <p className="text-center text-white">Vous n'avez aucune réservation payée.</p>
                     )}
-
+                    
                     <h2 className="text-center text-white mb-4">Sélectionner plusieurs jours de la semaine</h2>
                     <Form className="my-3 text-white">
                         {['lundi', 'mercredi', 'dimanche'].map((day) => (
@@ -172,14 +140,7 @@ const UserProfile = () => {
                         <Row className="justify-content-center mt-3">
                             {availableDates.map((date, index) => (
                                 <Col key={index} md={4} className="mb-3">
-                                    <div
-                                        className="p-3 text-center rounded"
-                                        style={{
-                                            backgroundColor: '#ffc107',
-                                            color: '#111',
-                                            border: '1px solid #fff',
-                                        }}
-                                    >
+                                    <div className="p-3 text-center rounded" style={{ backgroundColor: '#ffc107', color: '#111', border: '1px solid #fff' }}>
                                         <p>{date.format('dddd, LL')}</p>
                                         <p>Prix: {PRICE} euros</p>
                                         <Button 
