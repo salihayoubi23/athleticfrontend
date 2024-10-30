@@ -1,25 +1,41 @@
-import React, { useState, createContext, useContext } from 'react';
+import React, { useState, createContext, useContext, useEffect } from 'react';
 import ObjectId from 'bson-objectid';
 
 export const CartContext = createContext();
-
 export const useCart = () => useContext(CartContext);
 
-export const CartProvider = ({ children }) => {
-    const [cartItems, setCartItems] = useState([]);
+const CART_EXPIRATION_HOURS = 12;
 
-    const isValidReservationId = (id) => {
-        return typeof id === 'string' && ObjectId.isValid(id);
-    };
+const saveCartToLocalStorage = (cartItems) => {
+    const timestamp = Date.now(); // Enregistre le moment actuel en millisecondes
+    localStorage.setItem('cart', JSON.stringify({ cartItems, timestamp }));
+};
+
+const loadCartFromLocalStorage = () => {
+    const cartData = JSON.parse(localStorage.getItem('cart'));
+    if (!cartData) return [];
+
+    const { cartItems, timestamp } = cartData;
+    const now = Date.now();
+
+    // Vérifiez si les 12 heures se sont écoulées
+    if (now - timestamp > CART_EXPIRATION_HOURS * 60 * 60 * 1000) {
+        localStorage.removeItem('cart'); // Supprimez le panier expiré
+        return [];
+    }
+    return cartItems;
+};
+
+export const CartProvider = ({ children }) => {
+    const [cartItems, setCartItems] = useState(loadCartFromLocalStorage);
+
+    useEffect(() => {
+        saveCartToLocalStorage(cartItems); // Sauvegarde automatique à chaque modification du panier
+    }, [cartItems]);
 
     const addToCart = (reservation) => {
         if (!reservation || !reservation.reservationId || !reservation.prestation || !reservation.price) {
             console.error('Données de réservation invalides:', reservation);
-            return;
-        }
-
-        if (!isValidReservationId(reservation.reservationId)) {
-            console.error('reservationId non valide:', reservation.reservationId);
             return;
         }
 
@@ -32,15 +48,18 @@ export const CartProvider = ({ children }) => {
             return;
         }
 
-        setCartItems([...cartItems, reservation]);
+        const updatedCart = [...cartItems, reservation];
+        setCartItems(updatedCart);
     };
 
     const removeFromCart = (reservationId) => {
-        setCartItems(cartItems.filter(item => item.reservationId !== reservationId));
+        const updatedCart = cartItems.filter(item => item.reservationId !== reservationId);
+        setCartItems(updatedCart);
     };
 
     const clearCart = () => {
-        setCartItems([]); 
+        setCartItems([]);
+        localStorage.removeItem('cart');
     };
 
     return (
