@@ -36,7 +36,6 @@ const PrestationDetail = () => {
             <h2>{prestation.name}</h2>
             <p>{prestation.description}</p>
             <p>Prix : {prestation.price} €</p>
-            {/* Ajoutez d'autres éléments ici comme un formulaire de réservation */}
         </div>
     );
 };
